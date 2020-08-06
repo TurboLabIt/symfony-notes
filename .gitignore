@@ -1,0 +1,83 @@
+### webdev-gitignore by https://github.com/ZaneCEO/webdev-gitignore/ ###
+########################################################################
+#
+# curl -o .gitignore https://raw.githubusercontent.com/ZaneCEO/webdev-gitignore/master/.gitignore?$(date +%s)
+
+# IDEs #
+########
+.idea
+.settings
+nbproject
+.buildpath
+.project
+*.code-workspace
+.vscode
+
+
+# Logs #
+########
+*.log
+
+
+# SVN #
+#######
+.svn
+
+# composer #
+############
+#https://adamcod.es/2013/03/07/composer-install-vs-composer-update.html
+#composer.lock
+/vendor/
+
+
+# OS generated files #
+######################
+__MACOSX
+*.DS_Store*
+._*
+.Spotlight-V100
+.Trash*
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+
+# Links  #
+##########
+*.lnk
+
+# Let's Encrypt #
+#################
+.well-known/
+
+# Node.js #
+###########
+node_modules/
+npm-debug.log
+package-lock.json
+.sass-cache/
+
+# Bower #
+#########
+bower_components/
+
+
+# Patches #
+###########
+*.rej
+
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

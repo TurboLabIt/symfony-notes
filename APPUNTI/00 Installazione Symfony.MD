@@ -18,7 +18,7 @@ Per server e VM "pulite":
 
 # Installazione Symfony su Ubuntu
 
-1. [Guida: come installare PHP 7.4 (PHP-FPM) su Linux](https://turbolab.it/1380)
+1. [Guida: come installare PHP (PHP-FPM) su Linux](https://turbolab.it/1380)
 1. `wget https://get.symfony.com/cli/installer -O - | bash`
 1. `sudo mv /root/.symfony/bin/symfony /usr/local/bin/symfony`
 

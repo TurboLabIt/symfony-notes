@@ -9,7 +9,7 @@ Clonare in locale:
 ````
 git clone git@github.com:ZaneCEO/test-private.git
 git checkout -b dev
-git push
+git push --set-upstream origin dev
 ````
 
 
@@ -26,13 +26,18 @@ cd my_project_name
 
 `curl -O https://raw.githubusercontent.com/ZaneCEO/webdev-gitignore/master/.gitignore`
 
-Aggiunta bundle minimi:
-
-`composer require annotations && composer require twig && composer require asset && composer require doctrine && composer require maker && composer require debug --dev && composer require profiler --dev`
-
 Indichiamo esplicitamente quale versione di PHP usare:
 
-`echo "7.3" > .php-version`
+````
+symfony local:php:list
+echo "8.0" > .php-version
+````
+
+Aggiunta bundle minimi:
+
+`symfony composer require annotations twig cache asset doctrine && symfony composer require maker debug profiler --dev`
+
+
 
 
 ## Spostare Symfony nel repo

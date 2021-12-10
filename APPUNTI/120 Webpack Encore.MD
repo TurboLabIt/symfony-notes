@@ -1,23 +1,75 @@
+# Webpack Encore
 
+node library per gestione JS e CSS. 
+
+* [Webpack](https://webpack.js.org/) è il nome del tool - è uno *static module bundler*
+* [Encore](https://symfony.com/doc/current/frontend.html) è un bundle Symfony per l'integrazione di Webpack 
+
+
+# Installazione nodejs
+
+[Prendere l'ultima versione da qui](https://github.com/nodesource/distributions/blob/master/README.md#debinstall)
+
+````shell
+curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -
+sudo apt install nodejs -y
 ````
+
+# Installazione yarn
+
+nodejs ha due package manager: 
+
+* npm - installato automaticamente da nodejs
+* yarn - da installare a mano
+
+Per installare yarn: i comandi vengono mostrati alla fine dell'installazione di nodejs.
+
+````shell
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt update && sudo apt install yarn -y
+````
+
+
+# Installazione Webpack Encore
+
+````shell
 symfony composer require encore
-yarn
+yarn install
 ````
 
-node ha due package manager: yarn e npm.
+L'installazione crea *package.json*: è il file che viene letto da yarn.
 
-## webpack.config.js
+Scommentare le entry in `templates/base.html.twig`:
 
-E' il file di configurazione generale di webpack
+* `{{ encore_entry_link_tags('app') }}`: include il CSS
+* `{{ encore_entry_script_tags('app') }}`: include il JS
+
+# Comandi yarn
+
+* `yarn install`: scarica i pacchetti in `node_modules` (equivalente al `vendor` di composer)
+* ✨ `yarn watch`
+
+I comandi yarn sono definiti in `package.json`.
 
 
-## assets/app.js
+# webpack.config.js
+
+E' il file di configurazione principale di webpack.
+
+`.addEntry('app', './assets/app.js')`:
+
+1. `app`: è il nome del file pubblico generato
+1. `./assets/app.js`: è il file che deve essere letto
+
+
+# assets/app.js
 
 E'  la lista di import dalla quale viene generato il file finale.
 
 Per importare un altro file:
 
-````
+````javascript
 import trackingGtmWizardMap from "../../../tracking/gtm-wizard-map";
 trackingGtmWizardMap(); //esegue la funzione "default"
  ````
@@ -29,7 +81,7 @@ Il percorso è relativo al file `app.js` stesso
 
 Ogni file importato è sostanzialmente una funzione:
 
-````
+````javascript
 import TrackingGtmBase from "./gtm-base";
 
 export default function()
@@ -56,7 +108,7 @@ export default function()
 
 La prima direttiva importa un oggetto esterno che contiene i metodi di supporto:
 
-````
+````javascript
 export default {
 
     buildPlaceGtm: function(trackPlace) {
@@ -79,45 +131,76 @@ export default {
 }
 
 ````
+
+## Supporto SASS
+
+`yarn add sass-loader sass --dev`
+
+Nel file `webpack.config.js`, scommentare `enableSassLoader`.
  
 
 ## Aggiungere jQuery
 
-[yarnpkg.com](https://yarnpkg.com/)
+[yarnpkg.com](https://yarnpkg.com/package/jquery)
 
-`yarn add jquery --dev`
+`yarn add jquery@latest --dev`
 
 In `app.js`:
 
 `import $ from 'jquery'`
 
 Attenzione: `$` non sarà comunque disponibile nel contesto globale.
+Se serve per motivi legacy:
+
+`global.$ = $;`
 
 
 ## Aggiungere Bootstrap
 
-[yarnpkg.com](https://yarnpkg.com/)
+[yarnpkg.com](https://yarnpkg.com/package/bootstrap)
 
-`yarn add bootstrap --dev`
+`yarn add popper.js --dev && yarn add bootstrap@latest --dev`
+
+La prima è una *peer dependency* per Bootstrap, ovvero va 
+importata a mano.
 
 In `app.js`:
 
 `import 'bootstrap'`
 
-Poiché Bootstrap è un plugin di jQuery, non è necessario specificare il percorso del .js
+Poiché Bootstrap è un plugin di jQuery, non è necessario specificare il percorso del .js. 
+Questo funziona perché i plugin modificano jQuery (lo importano, e quando due moduli
+importano lo stesso oggetto, ottengono la stessa istanza).
 
 
-## In Twig
+## Aggiungere Fontawesome
 
-Importazione degli asset nei template Twig
+[yarnpkg.com](https://yarnpkg.com/package/@fortawesome/fontawesome-free)
 
-- CSS: `{{ encore_entry_link_tags('app) }}`
-- JS: `{{ encore_entry_script_tags('app) }}`
+`yarn add @fortawesome/fontawesome-free@latest --dev`
 
 
-## Comandi di build
+## Spostare le immagini fuori da public
 
-- In dev: `yarn watch`
-- Per prod: `yarn build`
+Spostare manualmente le immagini da `public/images` a `assets/images`.
 
-Lista completa in `package.json`
+Installare:
+
+````
+yarn add file-loader --dev
+````
+
+Abilitare la copia in webpack.config.js:
+
+````javascript
+.copyFiles({
+    from: './assets/images',
+    to: 'images/[path][name].[hash:8].[ext]'
+})
+
+.copyFiles({
+    from: './assets/images/',
+    to: 'images/[path][name].[ext]',
+    pattern: /favicon\.ico$/
+})
+````

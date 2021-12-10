@@ -24,4 +24,4 @@ Per server e VM "pulite":
 
 # Verifica installazione Symfony
 
-`symfony check:requirements`
+`symfony check:req`

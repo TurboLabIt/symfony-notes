@@ -1,6 +1,37 @@
 # Twig
 
-Operatori:
+I template vanno in `templates` (configurabile in `config/packages/twig.yaml`).
+
+Per renderizzarli:
+
+````php
+class HomeController extends BaseController
+{
+    #[Route('/home/{pageNum}', name: 'app_home_num')]
+    public function appHomeNum(int $pageNum): Response
+    {
+        ...
+    
+        return $this->render('home/index.html.twig', [
+    
+            "ArticleLatestList"     => ...,
+            "ArticleMainList"       => ...
+        ]);
+    }
+}
+````
+
+````twig
+{% extends 'main.html.twig' %}
+
+...
+
+{% for key,Article in ArticleLatestList %}
+    ....
+{% endfor %}
+````
+
+## Funzioni
 
 1. `{% extends 'principale.html.twig' %}`: estende un template parent (v. seguito)
 2. `{% if bao == '1' %}mostra{% endif %}`: costrutti
@@ -61,6 +92,7 @@ Quando il template che viene incluso si aspetta una variabile dal controller che
 {% include 'template.html' with {'nomeVarAttesaDallIncluso': nomeVarDisponibile} %}
 ````
 
+
 ## Sostituire blocchi nei template inclusi
 
 Quando si `include` qualcosa non si possono modificare i suoi blocchi.
@@ -72,4 +104,11 @@ Per farlo, usiamo `embed` (*It allows you to include another template’s conten
     {% block step1 %}stepper-element-selected {% endblock %}
     {% block step2 %}stepper-element-selected {% endblock %}
 {% endembed %}
+````
+
+
+## Generazione di URL
+
+````twig
+{{ path('app_home', { page: 1, var: val }
 ````

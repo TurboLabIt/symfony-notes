@@ -8,7 +8,22 @@ Esempio:
 
 *Monolog bundle* istanzia *logger service*
 
-I bundle vengono registrati in `config/bundles.php` (generalmente lo fa composer).
+I bundle vengono registrati in `config/bundles.php`. Generalmente lo fa composer, tramite il componente "Symfony Flex" (plugin per composer) e il sistema delle recipies.
+
+https://flex.symfony.com/
+
+
+## Installare un bundle
+
+`symfony composer require security-checker --dev`
+
+I bundle che vengono usati solo nell'ambiente dev, ma non servono in produzione, vanno installati con `--dev`.
+
+Dopo l'installazione, verificare se è stato creato un nuovo `.yaml` sotto `config/packages/`.
+
+## Rimuovere un bundle
+
+`symfony composer remove security-checker`
 
 
 ## Visualizzare bundle installati:
@@ -50,3 +65,11 @@ knp_markdown:
     service: markdown.parser.light
 ```
 
+## Visualizzare le recipes in uso
+
+`symfony composer recipes`
+
+
+## Pack
+
+Alcuni bundle sono "pack" => fanno `composer require` di molteplici bundle con un solo comando. Aggiungo entry distinte in `composer.json` per ognuno, come se fossero stati installati uno per volta.

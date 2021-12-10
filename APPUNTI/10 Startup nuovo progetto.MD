@@ -26,6 +26,9 @@ cd my_project_name
 
 `curl -O https://raw.githubusercontent.com/ZaneCEO/webdev-gitignore/master/.gitignore`
 
+
+## Versione di PHP
+
 Indichiamo esplicitamente quale versione di PHP usare:
 
 ````
@@ -33,10 +36,27 @@ symfony local:php:list
 echo "8.0" > .php-version
 ````
 
+In `composer.json`:
+
+````
+"require": {
+    "php": ">=8.0",
+````
+
+## Bundle
+
 Aggiunta bundle minimi:
 
-`symfony composer require annotations twig cache asset doctrine && symfony composer require maker debug profiler --dev`
+`symfony composer require annotations twig cache asset doctrine mailer stof/doctrine-extensions-bundle && symfony composer require maker debug profiler --dev`
 
+In `app/config/packages/stof_doctrine_extensions.yml`:
+
+````yaml
+stof_doctrine_extensions:
+   orm:
+      default:
+          timestampable: true
+````
 
 
 

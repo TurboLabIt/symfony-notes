@@ -6,7 +6,7 @@
 
 ## Creare utente
 
-🛑 `User` è una entity, ma si crea tramite un comando dedicato che fa anche degli altri mestieri (es: aggiorna `config/security.xml`):
+🛑 `User` è una entity, ma si crea tramite un comando dedicato che fa anche degli altri mestieri (es: aggiorna `config/security.yaml`):
 
 `symfony console make:user`
 

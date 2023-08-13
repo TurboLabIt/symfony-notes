@@ -60,15 +60,9 @@ Creare poi manualmente il template:
 
 Di default, l'admin è accessibile senza login. Per richiedere il login:
 
-````shell
-symfony console make:user
-symfony console make:login
-
 ````php
 #[IsGranted('ROLE_ADMIN')]
-#[Route('/admin', name: 'admin')]
-public function index(): Response
-{
+class DashboardController extends
 ````
 
 ````yaml

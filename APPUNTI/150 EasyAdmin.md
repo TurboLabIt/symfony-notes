@@ -11,12 +11,46 @@ symfony composer require admin
 symfony make:admin:dashboard
 ````
 
-Diviene disponibile subito `/admin`. Per modificare lo slug:
+Diviene disponibile subito `/admin`.
+
+
+## Modificare lo slug di accesso all'admin
+
+Per modificare lo slug:
 
 ````php
-# Controller/Admin/DashboardController.php
+# src/Controller/Admin/DashboardController.php
 
 #[Route('/nuovo-slug', name: 'admin')]
 public function index(): Response
 {
 ````
+
+## Startup dev
+
+Di default, il controller mostra la pagina di benvenuto di default tramite:
+
+````php
+#[Route('/admin', name: 'admin')]
+public function index(): Response
+{
+    return parent::index();
+````
+
+Per iniziare lo sviluppo, mostrare il render del template:
+
+````php
+#[Route('/admin', name: 'admin')]
+public function index(): Response
+{
+    //return parent::index();
+    return $this->render('admin/index.html.twig');
+````
+
+Creare poi manualmente il template:
+
+
+````php
+# templates/admin/index.html.twig
+{% extends '@EasyAdmin/page/content.html.twig' %}
+```

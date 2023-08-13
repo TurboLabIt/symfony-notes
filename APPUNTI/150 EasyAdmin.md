@@ -58,15 +58,4 @@ Creare poi manualmente il template:
 
 ## Richiedere login all'admin
 
-Di default, l'admin è accessibile senza login. Per richiedere il login:
-
-````php
-#[IsGranted('ROLE_ADMIN')]
-class DashboardController extends
-````
-
-````yaml
-# config/packages/security.yaml
-access_control:
-  - { path: ^/admin, roles: ROLE_ADMIN }
-````
+Di default, l'admin è accessibile senza login. Per richiedere il login: [vedi](https://github.com/TurboLabIt/symfony-notes/blob/master/APPUNTI/75%20Login.md#stabilire-quali-route-sono-protette-da-login)

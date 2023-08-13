@@ -1,5 +1,15 @@
 # Sistema di login
 
+Il sistema si compone di:
+
+- **authentication**: stabilire CHI SEI
+- **authorization**: stabilire COSA PUOI FARE
+
+firewall+authenticator_provider gestisce l'authentication, che carica i ruoli (ROLE_REGISTERED, ROLE_MODERATOR, ROLE_ADMIN).
+
+access_control stabilice quali route sono riservate a certi ruoli.
+
+
 ## Require dei pacchetti necessari
 
 `symfony composer require symfony/maker-bundle --dev &&  symfony composer require twig orm symfony/security-bundle`
@@ -59,5 +69,6 @@ Questo crea:
 
 ## Stabilire quali route sono protette da login
 
-In `config/packages/security.yaml`, aggiungere `access_control` per stabilire quali 
-route devono essere protette
+In `config/packages/security.yaml`, aggiungere elementi a `access_control` per stabilire quali 
+route richiedono particolari ruoli.
+

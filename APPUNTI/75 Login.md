@@ -70,5 +70,23 @@ Questo crea:
 ## Stabilire quali route sono protette da login
 
 In `config/packages/security.yaml`, aggiungere elementi a `access_control` per stabilire quali 
-route richiedono particolari ruoli.
+route richiedono particolari ruoli:
 
+````php
+#[IsGranted('ROLE_ADMIN')]
+class DashboardController extends
+````
+
+In alternativa (ma per l'admin è meglio metterli entrambi):
+
+````yaml
+# config/packages/security.yaml
+access_control:
+  - { path: ^/admin, roles: ROLE_ADMIN }
+````
+
+## Controllare se l'utente è loggato nel template twig:
+
+````twig
+{% if is_granted('ROLE_USER') %}
+````

@@ -33,6 +33,13 @@ Timestampare gli utenti:
 use TimestampableEntity;
 ````
 
+## Creare gli utenti senza form di registrazione
+
+Inserire manualmente le righe a DB:
+
+- `roles`: `["ROLE_ADMIN"]`
+- `password`: generare l'hash con il comando `symfony console security:hash`
+
 ## Creare il sistema di login
 
 `symfony console make:auth`

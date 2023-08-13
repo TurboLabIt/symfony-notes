@@ -86,6 +86,15 @@ access_control:
   - { path: ^/admin, roles: ROLE_ADMIN }
 ````
 
+L'utente loggato ha sempre `ROLE_USER`, mentre `ROLE_ADMIN` va assegnato puntualmente.
+
+In alternativa, ci sono attributi come:
+
+- `PUBLIC_ACCESS`: disponibile anche senza login
+- `IS_AUTHENTICATED` / `IS_AUTHENTICATED_REMEMBERED`: uguale a `ROLE_USER`
+- `IS_AUTHENTICATED_FULLY`: solo se l'utente ha fatto login esplicitamente, no "remember me"
+
+
 ## Controllare se l'utente è loggato nel template twig:
 
 ````twig

@@ -1,5 +1,7 @@
 # Creazione di una dashboard Admin con EasyAdmin
 
+🛑 Prima di implementare l'admin, serve il [sistema di login](https://github.com/TurboLabIt/symfony-notes/blob/master/APPUNTI/75%20Login.md)
+
 - 📚 [SymfonyCast](https://symfonycasts.com/screencast/easyadminbundle)
 - 📚 [Symfony Doc](https://symfony.com/bundles/EasyAdminBundle/current/index.html)
 

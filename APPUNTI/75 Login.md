@@ -5,9 +5,10 @@ Il sistema si compone di:
 - **authentication**: stabilire CHI SEI
 - **authorization**: stabilire COSA PUOI FARE
 
-firewall+authenticator_provider gestisce l'authentication, che carica i ruoli (ROLE_REGISTERED, ROLE_MODERATOR, ROLE_ADMIN).
+L'implementazione:
 
-access_control stabilice quali route sono riservate a certi ruoli.
+- **firewall+authenticator_provider**: gestisce l'authentication, che *carica* i ruoli (ROLE_USER, ROLE_ADMIN)
+- **access_control o IsGranted()**: rende accessibili determinate route solo se l'utente *ha* un deleterminato ruolo
 
 
 ## Require dei pacchetti necessari
@@ -77,7 +78,7 @@ route richiedono particolari ruoli:
 class DashboardController extends
 ````
 
-In alternativa (ma per l'admin è meglio metterli entrambi):
+In alternativa (ma per l'admin è necessario metterli entrambi):
 
 ````yaml
 # config/packages/security.yaml

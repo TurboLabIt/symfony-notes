@@ -94,8 +94,16 @@ In alternativa, ci sono attributi come:
 - `IS_AUTHENTICATED` / `IS_AUTHENTICATED_REMEMBERED`: uguale a `ROLE_USER`
 - `IS_AUTHENTICATED_FULLY`: solo se l'utente ha fatto login esplicitamente, no "remember me"
 
+## Prendere la sessione utente da controller
 
-## Controllare se l'utente è loggato nel template twig:
+````php
+$user = $this->getUser();
+if($user) {
+  echo $user-getEmail();
+}
+````
+
+## Controllare se l'utente è loggato nel template twig
 
 ````twig
 {% if is_granted('ROLE_USER') %}

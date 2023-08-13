@@ -14,7 +14,24 @@ L'entity creata `implements UserInterface`.
 
 Può essere modificata come qualsiasi altra entity.
 
-C'è sempre un metodo `getUsername()`, che però serve solo per visualizzare il nome dell'utente loggato => non server per l'auth.
+C'è sempre un metodo `getUserIdentifier()`, che però serve solo per visualizzare il nome dell'utente loggato => non server per l'auth.
+
+## Modifica all'utente
+
+Meglio fare gli ID "unsigned":
+
+````php
+#[ORM\Id]
+#[ORM\GeneratedValue]
+#[ORM\Column(type: "smallint", options: [ "unsigned" => true])]
+private ?int $id = null;
+````
+
+Timestampare gli utenti:
+
+````php
+use TimestampableEntity;
+````
 
 ## Creare il sistema di login
 

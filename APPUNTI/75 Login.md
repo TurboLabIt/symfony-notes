@@ -40,19 +40,24 @@ Inserire manualmente le righe a DB:
 - `roles`: `["ROLE_ADMIN"]`
 - `password`: generare l'hash con il comando `symfony console security:hash`
 
+
 ## Creare il sistema di login
 
 `symfony console make:auth`
+
+Rispondere:
+
+- `Login form authenticator`
+- `LoginFormAuthenticator`
 
 Questo crea:
 
 1. Controller per login/logout - `src/Controller/SecurityController.php`
 1. HTML del form di login - `templates/security/login.html.twig`
-1. Autenticatore - `src/Security/AdminAuthenticator.php`
+1. Autenticatore - `src/Security/LoginFormAuthenticator.php`
 
-Se già non c'è, modificare `config/security.xml` e aggiungere
 
-````
-security:
-    enable_authenticator_manager: true
-````
+## Stabilire quali route sono protette da login
+
+In `config/packages/security.yaml`, aggiungere `access_control` per stabilire quali 
+route devono essere protette

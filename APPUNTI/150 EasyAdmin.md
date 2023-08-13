@@ -52,13 +52,13 @@ Creare poi manualmente il template:
 ````php
 # templates/admin/index.html.twig
 {% extends '@EasyAdmin/page/content.html.twig' %}
-```
+````
 
 ## Richiedere login all'admin
 
 ````php
-    #[IsGranted('ROLE_ADMIN')]
-    #[Route('/pasticciotti2023', name: 'admin')]
-    public function index(): Response
-    {
+#[IsGranted('ROLE_ADMIN')]
+#[Route('/admin', name: 'admin')]
+public function index(): Response
+{
 ````

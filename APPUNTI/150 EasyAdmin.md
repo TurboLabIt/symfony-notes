@@ -58,4 +58,21 @@ Creare poi manualmente il template:
 
 ## Richiedere login all'admin
 
-Di default, l'admin è accessibile senza login. Per richiedere il login: [vedi](https://github.com/TurboLabIt/symfony-notes/blob/master/APPUNTI/75%20Login.md#stabilire-quali-route-sono-protette-da-login)
+Di default, l'admin è accessibile senza login. Per richiedere il login, fare due cose:
+
+In `config/packages/security.yaml`, nodo `access_control`, aggiungere una regola per la route:
+
+````yaml
+access_control:
+  - { path: ^/admin, roles: ROLE_ADMIN }
+````
+
+Aggiungere `IsGranted` alla dashboard (`src/Controller/Admin/DashboardController.php`):
+
+````php
+#[IsGranted('ROLE_ADMIN')]
+class DashboardController extends AbstractDashboardController
+{
+````
+
+

@@ -124,5 +124,12 @@ public function configureActions(): Actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             // prevent delete
             ->disable(Action::DELETE);
-    
+````
+
+
+## Configurare i campi
+
+In `src/Controller/Admin/<entity>CrudController.php`:
+
+````php
 ````

@@ -136,3 +136,18 @@ In `src/Controller/Admin/<entity>CrudController.php`:
 
 La lista completa dei tipi di field è: [Field Types](https://symfony.com/bundles/EasyAdminBundle/current/fields.html#field-types)
 
+
+
+## Paginazione e numero risultati listato:
+
+In dashobard oppure CrudController:
+
+````php
+    public function configureCrud(): Crud
+    {
+        return
+            parent::configureCrud()
+                ->setPaginatorPageSize(5000)
+                ->setDefaultSort(['id' => 'DESC']);
+    }
+````

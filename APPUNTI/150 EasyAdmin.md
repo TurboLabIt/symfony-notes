@@ -28,6 +28,7 @@ public function index(): Response
 {
 ````
 
+
 ## Startup dev
 
 Di default, il controller mostra la pagina di benvenuto di default tramite:
@@ -56,6 +57,7 @@ Creare poi manualmente il template:
 {% extends '@EasyAdmin/page/content.html.twig' %}
 ````
 
+
 ## Richiedere login all'admin
 
 Di default, l'admin è accessibile senza login. Per richiedere il login, fare due cose:
@@ -75,6 +77,7 @@ class DashboardController extends AbstractDashboardController
 {
 ````
 
+
 ## Gestire le entity
 
 Per svolgere operazioni CRUD su un'entity:
@@ -93,8 +96,29 @@ Per renderlo raggiungibile, è necessario linkarlo in `src/Controller/Admin/Lega
 public function configureMenuItems(): iterable
 {
     yield MenuItem::linkToDashboard('Admin Home', 'fa fa-dashboard');
-    yield MenuItem::linkToCrud('Files', 'fas fa-file', LegacyFile::class);
+    yield MenuItem::linkToCrud('Files', 'fas fa-file', <entity>::class);
     yield MenuItem::linkToUrl('Home', 'fa fa-home', '/');
 }
 ````
 
+Per trovare i nomini delle icone: [fontawesome](https://fontawesome.com/search?q=admin&o=r&m=free)
+
+
+## Configurazione
+
+La maggior parte delle funzioni si possono configurare:
+
+1. a livello di dashboard ==> si applicano a tutti i CrudController
+2. a livello di specifico CrudController
+
+Ad es: `public function configureActions()` gestisce le azioni disponibili sulle row. Per modificarle:
+
+````php
+public function configureActions(): Actions
+{
+    return
+        parent::configureActions()
+            // add a link to the row detail page
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+    
+````

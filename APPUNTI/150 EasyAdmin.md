@@ -75,4 +75,26 @@ class DashboardController extends AbstractDashboardController
 {
 ````
 
+## Gestire le entity
+
+Per svolgere operazioni CRUD su un'entity:
+
+````shell
+symfony console make:admin:crud
+````
+
+Selezionare l'entity da gestire, poi date sempre Invio.
+
+Viene così generato `src/Controller/Admin/<entity>CrudController.php`.
+
+Per renderlo raggiungibile, è necessario linkarlo in `src/Controller/Admin/LegacyFileCrudController.php`:
+
+````php
+public function configureMenuItems(): iterable
+{
+    yield MenuItem::linkToDashboard('Admin Home', 'fa fa-dashboard');
+    yield MenuItem::linkToCrud('Files', 'fas fa-file', LegacyFile::class);
+    yield MenuItem::linkToUrl('Home', 'fa fa-home', '/');
+}
+````
 

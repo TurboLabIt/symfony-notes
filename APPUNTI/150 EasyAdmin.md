@@ -97,14 +97,16 @@ public function configureMenuItems(): iterable
 {
     yield MenuItem::linkToDashboard('Admin Home', 'fa fa-dashboard');
     yield MenuItem::linkToCrud('Files', 'fas fa-file', <entity>::class);
-    yield MenuItem::linkToUrl('Home', 'fa fa-home', '/');
+    yield MenuItem::linkToUrl('Home', 'fa fa-home', $this->generateUrl('app_homepage'));
 }
 ````
 
 Per trovare i nomini delle icone: [fontawesome](https://fontawesome.com/search?q=admin&o=r&m=free)
 
+C'è anche `MenuItem::linkToRoute`, ma occhio che fa passare il rendering da EasyAdmin (l'URL è di EasyAdmin).
 
-## Configurazione
+
+## Configurazione azioni su CRUD
 
 La maggior parte delle funzioni si possono configurare:
 
@@ -119,6 +121,8 @@ public function configureActions(): Actions
     return
         parent::configureActions()
             // add a link to the row detail page
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            // prevent delete
+            ->disable(Action::DELETE);
     
 ````

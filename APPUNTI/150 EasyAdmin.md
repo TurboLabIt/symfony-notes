@@ -31,7 +31,7 @@ public function index(): Response
 
 ## Startup dev
 
-Di default, il controller mostra la pagina di benvenuto di default tramite:
+Di default, il controller mostra la pagina di benvenuto tramite:
 
 ````php
 #[Route('/admin', name: 'admin')]

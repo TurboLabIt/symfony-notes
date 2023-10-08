@@ -132,36 +132,133 @@ public function configureActions(): Actions
 In `src/Controller/Admin/<entity>CrudController.php`:
 
 ````php
-        yield IdField::new('id')
-                ->hideWhenCreating()
-                ->setFormTypeOption('disabled','disabled');
+yield IdField::new('id')
+    ->hideWhenCreating()
+    ->setFormTypeOption('disabled','disabled');
 
-        yield TextField::new('titolo');
+yield TextField::new('titolo');
 
-        yield IntegerField::new('data_creazione')
-                ->formatValue(static function($value, LegacyFile $file){
-                    return empty($value) ? $value : \DateTime::createFromFormat('YmdHis', $value)->format("d F Y");
-                })
-                ->hideOnForm()
-                ->setFormTypeOption('disabled','disabled');
+yield IntegerField::new('data_creazione')
+    ->formatValue(static function($value, LegacyFile $file){
+        return empty($value) ? $value : \DateTime::createFromFormat('YmdHis', $value)->format("d F Y");
+    })
+    ->hideOnForm()
+    ->setFormTypeOption('disabled','disabled');
 
-        yield IntegerField::new('visite')
-                ->formatValue(function($value, LegacyFile $entity) {
+yield IntegerField::new('visite')
+    ->formatValue(function($value, LegacyFile $entity) {
 
-                    $formattedValue = number_format($value, "0", ",", ".");
-                    return $formattedValue;
-                })
-                ->hideWhenCreating()
-                ->setTextAlign("right")
-                ->setFormTypeOption('disabled','disabled');
+        $formattedValue = number_format($value, "0", ",", ".");
+        return $formattedValue;
+    })
+    ->hideWhenCreating()
+    ->setTextAlign("right")
+    ->setFormTypeOption('disabled','disabled');
 
-        yield TextField::new('formato')
-                ->hideWhenCreating()
-                ->setTextAlign("right")
-                ->setFormTypeOption('disabled','disabled');
+yield TextField::new('formato')
+    ->hideWhenCreating()
+    ->setTextAlign("right")
+    ->setFormTypeOption('disabled','disabled');
 ````
 
 La lista completa dei tipi di field è: [Field Types](https://symfony.com/bundles/EasyAdminBundle/current/fields.html#field-types)
+
+
+## Campo upload file
+
+Definire (dove vuoi, forse nell'entity (??)) il percorso (relativo al progetto) in cui salvare il file caricati:
+
+````php
+const DOWNLOADABLES_DIRECTORY = "assets" . DIRECTORY_SEPARATOR . "downloadables" . DIRECTORY_SEPARATOR;
+````
+
+Definire un metodo nell'entity che gestisca solo il nome del file su filesystem:
+
+````php
+public function getUploadedFile() : ?string
+{
+    if( empty($this->getId()) || empty($this->getFormato()) ) {
+        return null;
+    }
+
+    $fileName = $this->getId() . "." . $this->getFormato();
+    return $fileName;
+}
+
+
+public function setUploadedFile(?string $tempFileName) : static
+{
+    return $this;
+}
+````
+
+Definire un metodo nell'entity che ritorni l'URL pubblico del file:
+
+````php
+public function getUrl() : string
+{
+    return sprintf('/scarica/%s', $this->getId());
+}
+````
+
+Nel CrudController, aggiungere il campo:
+
+````php
+public function configureFields(string $pageName): iterable
+{
+    // ...
+
+    $entity = $this->getContext()->getEntity()->getInstance();
+    $that   = $this;
+
+    yield ImageField::new('uploadedFile')
+            // URL slug(s)
+            ->setBasePath('scarica/')
+            // path on filesystem (relative to Symfony project)
+            ->setUploadDir('assets/downloadables')
+            ->setUploadedFileNamePattern('[uuid]')
+            ->setFormTypeOption('upload_new', function (UploadedFile $file, string $uploadDir, string $fileName) use($that, $entity) {
+
+                $fileExtension = $file->guessExtension();
+                $entity->setFormato($fileExtension);
+
+                $that->em->persist($entity);
+                $this->em->flush();
+
+                $finalFileName = $entity->getUploadedFile();
+                $file->move($uploadDir, $finalFileName);
+            })
+            ->setRequired($pageName !== Crud::PAGE_EDIT )
+            ->hideOnDetail()
+            ->hideOnIndex();
+
+    yield TextField::new("url")
+            ->formatValue(function($value, LegacyFile $entity) use($that) {
+
+                $fileFullPath = $that->getFileFullPath($entity);
+
+                $text = "<a href=\"$value\">";
+                $text .=
+                    !file_exists($fileFullPath) || !is_file($fileFullPath) || !is_readable($fileFullPath)
+                        ? "🛑 FILE ERROR" : "Download";
+
+                $text .= "</a>";
+
+                return $text;
+            })
+            ->hideOnForm();
+}
+````
+
+Con questa configurazione, il file cancellato da filesystem solo quando l'utente modifica/trash lo specifico campo.
+
+Per eliminare il file quando viene eliminata l'entit
+
+
+````php
+````
+
+
 
 
 ## Paginazione e numero risultati listato:

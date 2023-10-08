@@ -12,6 +12,8 @@ node library per gestione JS e CSS.
 
 [webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh)
 
+📚 [Come installare Node.js e npm su Ubuntu](https://turbolab.it/3724)
+
 
 # Installazione yarn
 
@@ -20,13 +22,11 @@ nodejs ha due package manager:
 * npm - installato automaticamente da nodejs
 * yarn - da installare a mano
 
-Per installare yarn: i comandi vengono mostrati alla fine dell'installazione di nodejs.
+Per installare yarn: i comandi vengono mostrati alla fine dell'installazione di nodejs. Se hai usato 
+[webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh),
+yarn è già installato
 
-````shell
-curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt update && sudo apt install yarn -y
-````
+📚 [Come usare Node.js, npm e yarn sul PC](https://turbolab.it/3726)
 
 
 # Installazione Webpack Encore

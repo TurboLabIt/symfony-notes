@@ -132,10 +132,36 @@ public function configureActions(): Actions
 In `src/Controller/Admin/<entity>CrudController.php`:
 
 ````php
+        yield IdField::new('id')
+                ->hideWhenCreating()
+                ->setFormTypeOption('disabled','disabled');
+
+        yield TextField::new('titolo');
+
+        yield IntegerField::new('data_creazione')
+                ->formatValue(static function($value, LegacyFile $file){
+                    return empty($value) ? $value : \DateTime::createFromFormat('YmdHis', $value)->format("d F Y");
+                })
+                ->hideOnForm()
+                ->setFormTypeOption('disabled','disabled');
+
+        yield IntegerField::new('visite')
+                ->formatValue(function($value, LegacyFile $entity) {
+
+                    $formattedValue = number_format($value, "0", ",", ".");
+                    return $formattedValue;
+                })
+                ->hideWhenCreating()
+                ->setTextAlign("right")
+                ->setFormTypeOption('disabled','disabled');
+
+        yield TextField::new('formato')
+                ->hideWhenCreating()
+                ->setTextAlign("right")
+                ->setFormTypeOption('disabled','disabled');
 ````
 
 La lista completa dei tipi di field è: [Field Types](https://symfony.com/bundles/EasyAdminBundle/current/fields.html#field-types)
-
 
 
 ## Paginazione e numero risultati listato:

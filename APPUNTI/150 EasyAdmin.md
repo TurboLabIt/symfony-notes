@@ -204,6 +204,10 @@ public function getUrl() : string
 Nel CrudController, aggiungere il campo:
 
 ````php
+public function __construct(protected EntityManagerInterface $em)
+{ }
+
+
 public function configureFields(string $pageName): iterable
 {
     // ...
@@ -252,13 +256,46 @@ public function configureFields(string $pageName): iterable
 
 Con questa configurazione, il file cancellato da filesystem solo quando l'utente modifica/trash lo specifico campo.
 
-Per eliminare il file quando viene eliminata l'entit
-
+Per eliminare il file quando viene eliminata l'entity:
 
 ````php
+public function __construct(protected ContainerBagInterface $parameterBag)
+{ }
+
+
+public function delete(AdminContext $context) : KeyValueStore|Response
+{
+    $entity = $context->getEntity()->getInstance();
+    $fileFullPath = $this->getFileFullPath($entity);
+
+    $response = parent::delete($context);
+
+    if( file_exists($fileFullPath) && is_file($fileFullPath) && is_writable($fileFullPath) ) {
+        unlink($fileFullPath);
+    }
+
+    return $response;
+}
+
+
+protected function getDownloadablesDir() : string
+{
+    $dir = $this->parameterBag->get('kernel.project_dir') . DIRECTORY_SEPARATOR . LegacyFile::DOWNLOADABLES_DIRECTORY;
+    return $dir;
+}
+
+
+protected function getFileFullPath(LegacyFile $entity) : ?string
+{
+    $fileName = $entity->getUploadedFile();
+    if( empty($fileName) ) {
+        return null;
+    }
+
+    $fileFullPath = $this->getDownloadablesDir() . $fileName;
+    return $fileFullPath;
+}
 ````
-
-
 
 
 ## Paginazione e numero risultati listato:
@@ -273,4 +310,20 @@ In dashobard oppure CrudController:
                 ->setPaginatorPageSize(5000)
                 ->setDefaultSort(['id' => 'DESC']);
     }
+````
+
+## Aprire una pagina specifica al login
+
+Se non hai niente da mostrare nella dashboard, puoi aprire un'altra pagina al login tramite redirect. In `DashboardController.php`:
+
+````php
+public function __construct(protected AdminUrlGenerator $adminUrlGenerator)
+{ }
+
+
+#[Route('/admin', name: 'admin')]
+public function index(): Response
+{
+    return $this->redirect($this->adminUrlGenerator->setController(LegacyFileCrudController::class)->generateUrl());
+}
 ````

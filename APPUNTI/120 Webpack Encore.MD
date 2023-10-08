@@ -10,10 +10,8 @@ node library per gestione JS e CSS.
 
 [Prendere l'ultima versione da qui](https://github.com/nodesource/distributions/blob/master/README.md#debinstall)
 
-````shell
-curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -
-sudo apt install nodejs -y
-````
+[webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh)
+
 
 # Installazione yarn
 

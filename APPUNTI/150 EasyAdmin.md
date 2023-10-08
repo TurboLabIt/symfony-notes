@@ -303,13 +303,13 @@ protected function getFileFullPath(LegacyFile $entity) : ?string
 In dashobard oppure CrudController:
 
 ````php
-    public function configureCrud(): Crud
-    {
-        return
-            parent::configureCrud()
-                ->setPaginatorPageSize(5000)
-                ->setDefaultSort(['id' => 'DESC']);
-    }
+public function configureCrud(): Crud
+{
+    return
+        parent::configureCrud()
+            ->setPaginatorPageSize(5000)
+            ->setDefaultSort(['id' => 'DESC']);
+}
 ````
 
 ## Aprire una pagina specifica al login

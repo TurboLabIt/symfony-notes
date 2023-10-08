@@ -8,11 +8,11 @@ node library per gestione JS e CSS.
 
 # Installazione nodejs
 
-[Prendere l'ultima versione da qui](https://github.com/nodesource/distributions/blob/master/README.md#debinstall)
+Prendere l'ultima versione [da qui](https://github.com/nodesource/distributions/blob/master/README.md#debinstall)
 
-[webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh)
+Eseguire [webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh)
 
-📚 [Come installare Node.js e npm su Ubuntu](https://turbolab.it/3724)
+📚 Vedi anche: [Come installare Node.js e npm su Ubuntu](https://turbolab.it/3724)
 
 
 # Installazione yarn
@@ -26,7 +26,7 @@ Per installare yarn: i comandi vengono mostrati alla fine dell'installazione di 
 [webstackup/script/node.js/install.sh](https://github.com/TurboLabIt/webstackup/blob/master/script/node.js/install.sh),
 yarn è già installato
 
-📚 [Come usare Node.js, npm e yarn sul PC](https://turbolab.it/3726)
+📚 Vedi anche: [Come usare Node.js, npm e yarn sul PC](https://turbolab.it/3726)
 
 
 # Installazione Webpack Encore

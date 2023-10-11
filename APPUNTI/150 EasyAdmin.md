@@ -126,6 +126,16 @@ public function configureActions(): Actions
             ->disable(Action::DELETE);
 ````
 
+Per evitare che le action vengano nascoste all'interno del menu e mostrarle immediatamente:
+
+````php
+public function configureCrud(): Crud
+{
+    return
+        parent::configureCrud()
+            ->showEntityActionsInlined();
+````
+
 
 ## Configurare i campi
 
@@ -134,6 +144,10 @@ In `src/Controller/Admin/<entity>CrudController.php`:
 ````php
 public function configureFields(string $pageName): iterable
 {
+
+    $entity = $this->getContext()->getEntity()->getInstance();
+    $that   = $this;
+
     yield IdField::new('id')
             ->hideWhenCreating()
             ->setDisabled();
@@ -147,44 +161,10 @@ public function configureFields(string $pageName): iterable
             ->hideOnForm()
             ->setDisabled();
 
-    yield IntegerField::new('visite')
-            /*->formatValue(function($value, LegacyFile $entity) {
-
-                $formattedValue = number_format($value, "0", ",", ".");
-                return $formattedValue;
-            })*/
-            ->setTemplatePath('admin/field/downloads.html.twig')
-            ->hideWhenCreating()
-            ->setTextAlign("right")
-            ->setDisabled();
-
     yield TextField::new('formato')
             ->hideWhenCreating()
             ->setTextAlign("right")
             ->setDisabled();
-
-    $entity = $this->getContext()->getEntity()->getInstance();
-    $that   = $this;
-
-    yield ImageField::new('uploadedFile')
-            ->setBasePath('scarica/')
-            ->setUploadDir('assets/downloadables')
-            ->setUploadedFileNamePattern('[uuid]')
-            ->setFormTypeOption('upload_new', function (UploadedFile $file, string $uploadDir, string $fileName) use($that, $entity) {
-
-                $fileExtension = $file->guessExtension();
-                $entity->setFormato($fileExtension);
-
-                $that->em->persist($entity);
-                $this->em->flush();
-
-                $finalFileName = $entity->getUploadedFile();
-                $file->move($uploadDir, $finalFileName);
-            })
-            ->setRequired($pageName !== Crud::PAGE_EDIT )
-            ->hideOnDetail()
-            ->hideOnIndex();
-}
 ````
 
 La lista completa dei tipi di field è: [Field Types](https://symfony.com/bundles/EasyAdminBundle/current/fields.html#field-types)
@@ -235,18 +215,10 @@ Non è possibile definire variabili Twig come si fa dai controller Symfony norma
 </a>
 ````
 
-
 In alternativa, se è necessario rendere disponibile al template una variabile che non fa parte della entity,
 la si può assegnare al contesto globale di Twig:
 
 ````php
-public function __construct(protected EntityManagerInterface $em, protected Environment $twig, ContainerBagInterface $parameterBag)
-{
-    $averageDownloadCount = $em->getRepository(LegacyFile::class)->getAverageDownloadCount();
-    LegacyFile::setAverageDownloadCount($averageDownloadCount);
-}
-
-
 public function configureFields(string $pageName): iterable
 {
     if( !in_array($pageName, [Crud::PAGE_NEW, Crud::PAGE_EDIT]) ) {
@@ -254,7 +226,6 @@ public function configureFields(string $pageName): iterable
         $averageDownloadCount = $this->em->getRepository(LegacyFile::class)->getAverageDownloadCount();
         $this->twig->addGlobal("averageDownloadCount", $averageDownloadCount);
     }
-
 
     yield IntegerField::new('visite')
             ->setTemplatePath('admin/field/downloads.html.twig')
@@ -286,61 +257,87 @@ public function configureFields(string $pageName): iterable
 ````
 
 
-
-
 ## Campo upload file
 
-Definire (dove vuoi, forse nell'entity (??)) il percorso (relativo al progetto) in cui salvare il file caricati:
+Aggiungere il necessario all'entity:
 
 ````php
-const DOWNLOADABLES_DIRECTORY = "assets" . DIRECTORY_SEPARATOR . "downloadables" . DIRECTORY_SEPARATOR;
-````
-
-Definire un metodo nell'entity che gestisca solo il nome del file su filesystem:
-
-````php
-public function getUploadedFile() : ?string
+<?php
+class LegacyFile
 {
-    if( empty($this->getId()) || empty($this->getFormato()) ) {
-        return null;
+    const DOWNLOADABLES_DIRECTORY = "assets" . DIRECTORY_SEPARATOR . "downloadables" . DIRECTORY_SEPARATOR;
+
+    protected static string $projectDir;
+
+    public static function setProjectDir(string $projectDir) : void
+    {
+        $projectDir = rtrim($projectDir, '/') . '/';
+        static::$projectDir = $projectDir;
     }
 
-    $fileName = $this->getId() . "." . $this->getFormato();
-    return $fileName;
-}
+    public function getUploadedFile() : ?string
+    {
+        if( empty($this->getId()) || empty($this->getFormato()) ) {
+            return null;
+        }
 
+        $fileName = $this->getId() . "." . $this->getFormato();
+        return $fileName;
+    }
 
-public function setUploadedFile(?string $tempFileName) : static
-{
-    return $this;
+    public function setUploadedFile(?string $tempFileName) : static
+    {
+        return $this;
+    }
+
+    public function getDownloadablesDir() : string
+    {
+        if( empty(static::$projectDir) ) {
+            throw new ConfigurationException("Project Dir not set!");
+        }
+
+        return static::$projectDir . static::DOWNLOADABLES_DIRECTORY;
+    }
+
+    public function getFileFullPath() : ?string
+    {
+        $fileName = $this->getUploadedFile();
+        if( empty($fileName) ) {
+            return null;
+        }
+
+        $fileFullPath = $this->getDownloadablesDir() . $fileName;
+        return $fileFullPath;
+    }
+
+    public function downloadableExists() : bool
+    {
+        $downloadableFullPath = $this->getFileFullPath();
+
+        $downloadableExists =
+            !empty($downloadableFullPath) && file_exists($downloadableFullPath) &&
+            is_file($downloadableFullPath) && is_readable($downloadableFullPath);
+
+        return $downloadableExists;
+    }
+
+    public function getUrl() : string
+    {
+        return sprintf('/scarica/%s', $this->getId());
+    }
 }
 ````
 
-Definire un metodo nell'entity che ritorni l'URL pubblico del file:
+Richiamare le funzioni dell'entity nel CrudController:
 
 ````php
-public function getUrl() : string
-{
-    return sprintf('/scarica/%s', $this->getId());
-}
-````
-
-Nel CrudController, aggiungere il campo:
-
-````php
-public function __construct(protected EntityManagerInterface $em)
-{ }
-
-
 public function configureFields(string $pageName): iterable
 {
-    // ...
-
     $entity = $this->getContext()->getEntity()->getInstance();
     $that   = $this;
 
     yield ImageField::new('uploadedFile')
-            // URL slug(s)
+            // URL slug(s) prefix
             ->setBasePath('scarica/')
             // path on filesystem (relative to Symfony project)
             ->setUploadDir('assets/downloadables')
@@ -361,63 +358,30 @@ public function configureFields(string $pageName): iterable
             ->hideOnIndex();
 
     yield TextField::new("url")
-            ->formatValue(function($value, LegacyFile $entity) use($that) {
-
-                $fileFullPath = $that->getFileFullPath($entity);
-
-                $text = "<a href=\"$value\">";
-                $text .=
-                    !file_exists($fileFullPath) || !is_file($fileFullPath) || !is_readable($fileFullPath)
-                        ? "🛑 FILE ERROR" : "Download";
-
-                $text .= "</a>";
-
-                return $text;
-            })
+            ->setTemplatePath('admin/field/download-link.html.twig')
             ->hideOnForm();
 }
 ````
 
-Con questa configurazione, il file cancellato da filesystem solo quando l'utente modifica/trash lo specifico campo.
 
-Per eliminare il file quando viene eliminata l'entity:
+Con questa configurazione, il file viene cancellato da filesystem solo quando l'utente modifica/trash lo specifico campo.
+
+Per eliminare il file quando viene eliminata l'entity, aggiungere nel CrudController anche:
 
 ````php
-public function __construct(protected ContainerBagInterface $parameterBag)
-{ }
-
-
 public function delete(AdminContext $context) : KeyValueStore|Response
 {
     $entity = $context->getEntity()->getInstance();
-    $fileFullPath = $this->getFileFullPath($entity);
+    $fileFullPath = $entity->getFileFullPath();
+    $downloadableFileExists = $entity->downloadableExists();
 
     $response = parent::delete($context);
 
-    if( file_exists($fileFullPath) && is_file($fileFullPath) && is_writable($fileFullPath) ) {
+    if($downloadableFileExists) {
         unlink($fileFullPath);
     }
 
     return $response;
-}
-
-
-protected function getDownloadablesDir() : string
-{
-    $dir = $this->parameterBag->get('kernel.project_dir') . DIRECTORY_SEPARATOR . LegacyFile::DOWNLOADABLES_DIRECTORY;
-    return $dir;
-}
-
-
-protected function getFileFullPath(LegacyFile $entity) : ?string
-{
-    $fileName = $entity->getUploadedFile();
-    if( empty($fileName) ) {
-        return null;
-    }
-
-    $fileFullPath = $this->getDownloadablesDir() . $fileName;
-    return $fileFullPath;
 }
 ````
 

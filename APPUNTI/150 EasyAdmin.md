@@ -78,7 +78,7 @@ class DashboardController extends AbstractDashboardController
 ````
 
 
-## Gestire le entity
+## Gestire le entity tramite CrudController
 
 Per svolgere operazioni CRUD su un'entity:
 
@@ -144,7 +144,6 @@ In `src/Controller/Admin/<entity>CrudController.php`:
 ````php
 public function configureFields(string $pageName): iterable
 {
-
     $entity = $this->getContext()->getEntity()->getInstance();
     $that   = $this;
 
@@ -178,34 +177,11 @@ Per personalizzare il template utilizzato per mostrare un campo nella tabella (i
 yield TextField::new("url")
         ->setTemplatePath('admin/field/download-link.html.twig')
         ->hideOnForm();
-
-yield ImageField::new('url', 'Anteprima')
-    ->formatValue(function($value, LegacyFile $entity) {
-
-        if( !$entity->downloadableExists() ) {
-           return '/images/error.png';
-        }
-
-        if( $entity->isImage() ) {
-            return $value;
-        }
-
-        $formattedValue =
-            match($entity->getFormato()) {
-                'pdf'           => '/images/pdf.png',
-                default         => '/images/question-mark.png'
-            };
-
-        return $formattedValue;
-    })
-    ->setTemplatePath('admin/field/image.html.twig')
-    ->hideOnForm();
 ````
 
 Non è possibile definire variabili Twig come si fa dai controller Symfony normali, ma i template hanno accesso alle entity:
 
-
-````
+````twig
 {# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
 {# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
 {# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
@@ -235,7 +211,7 @@ public function configureFields(string $pageName): iterable
 }
 ````
 
-````
+````twig
 {# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
 {# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
 {# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
@@ -254,6 +230,53 @@ public function configureFields(string $pageName): iterable
 {% endif %}
 
 {{ field.formattedValue|number_format(0, '', '.') }}
+````
+
+## Evitare che un ImageType sia cliccabile
+
+Di default, il campo ImageType mostra nell'index un'anteprima dell'immagine che, se cliccata, apre un lightbox
+con l'immagine zoomata.
+
+Per evitarlo:
+
+````php
+yield ImageField::new('url', 'Anteprima')
+    ->setTemplatePath('admin/field/image.html.twig');
+````
+
+````twig
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+
+{% set isClickable = entity.instance.downloadableExists and entity.instance.isImage %}
+
+{% set images = field.formattedValue %}
+{% if images is not iterable %}
+    {% set images = [images] %}
+{% endif %}
+
+{% for image in images %}
+
+    {% set html_id = 'ea-lightbox-' ~ field.uniqueId ~ '-' ~ loop.index %}
+
+    {% if isClickable %}
+        <a href="#" class="ea-lightbox-thumbnail" data-ea-lightbox-content-selector="#{{ html_id }}">
+    {% endif %}
+
+    <img src="{{ asset(image) }}" class="img-fluid"{% if not isClickable %} style="max-height: 50px; max-width: 100px;"{% endif %}>
+
+    {% if isClickable %}
+
+        </a>
+
+        <div id="{{ html_id }}" class="ea-lightbox">
+            <img src="{{ asset(image) }}">
+        </div>
+
+    {% endif %}
+
+{% endfor %}
 ````
 
 
@@ -331,6 +354,12 @@ class LegacyFile
 Richiamare le funzioni dell'entity nel CrudController:
 
 ````php
+public function __construct(protected EntityManagerInterface $em, protected Environment $twig, ContainerBagInterface $parameterBag)
+{
+    $projectDir = $parameterBag->get('kernel.project_dir');
+    LegacyFile::setProjectDir($projectDir);
+}
+
 public function configureFields(string $pageName): iterable
 {
     $entity = $this->getContext()->getEntity()->getInstance();
@@ -360,9 +389,7 @@ public function configureFields(string $pageName): iterable
     yield TextField::new("url")
             ->setTemplatePath('admin/field/download-link.html.twig')
             ->hideOnForm();
-}
 ````
-
 
 Con questa configurazione, il file viene cancellato da filesystem solo quando l'utente modifica/trash lo specifico campo.
 

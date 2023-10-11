@@ -132,36 +132,149 @@ public function configureActions(): Actions
 In `src/Controller/Admin/<entity>CrudController.php`:
 
 ````php
-yield IdField::new('id')
-    ->hideWhenCreating()
-    ->setFormTypeOption('disabled','disabled');
+public function configureFields(string $pageName): iterable
+{
+    yield IdField::new('id')
+            ->hideWhenCreating()
+            ->setDisabled();
 
-yield TextField::new('titolo');
+    yield TextField::new('titolo');
 
-yield IntegerField::new('data_creazione')
-    ->formatValue(static function($value, LegacyFile $file){
-        return empty($value) ? $value : \DateTime::createFromFormat('YmdHis', $value)->format("d F Y");
-    })
-    ->hideOnForm()
-    ->setFormTypeOption('disabled','disabled');
+    yield IntegerField::new('data_creazione')
+            ->formatValue(static function($value, LegacyFile $file){
+                return empty($value) ? $value : \DateTime::createFromFormat('YmdHis', $value)->format("d F Y");
+            })
+            ->hideOnForm()
+            ->setDisabled();
 
-yield IntegerField::new('visite')
-    ->formatValue(function($value, LegacyFile $entity) {
+    yield IntegerField::new('visite')
+            /*->formatValue(function($value, LegacyFile $entity) {
 
-        $formattedValue = number_format($value, "0", ",", ".");
-        return $formattedValue;
-    })
-    ->hideWhenCreating()
-    ->setTextAlign("right")
-    ->setFormTypeOption('disabled','disabled');
+                $formattedValue = number_format($value, "0", ",", ".");
+                return $formattedValue;
+            })*/
+            ->setTemplatePath('admin/field/downloads.html.twig')
+            ->hideWhenCreating()
+            ->setTextAlign("right")
+            ->setDisabled();
 
-yield TextField::new('formato')
-    ->hideWhenCreating()
-    ->setTextAlign("right")
-    ->setFormTypeOption('disabled','disabled');
+    yield TextField::new('formato')
+            ->hideWhenCreating()
+            ->setTextAlign("right")
+            ->setDisabled();
+
+    $entity = $this->getContext()->getEntity()->getInstance();
+    $that   = $this;
+
+    yield ImageField::new('uploadedFile')
+            ->setBasePath('scarica/')
+            ->setUploadDir('assets/downloadables')
+            ->setUploadedFileNamePattern('[uuid]')
+            ->setFormTypeOption('upload_new', function (UploadedFile $file, string $uploadDir, string $fileName) use($that, $entity) {
+
+                $fileExtension = $file->guessExtension();
+                $entity->setFormato($fileExtension);
+
+                $that->em->persist($entity);
+                $this->em->flush();
+
+                $finalFileName = $entity->getUploadedFile();
+                $file->move($uploadDir, $finalFileName);
+            })
+            ->setRequired($pageName !== Crud::PAGE_EDIT )
+            ->hideOnDetail()
+            ->hideOnIndex();
+}
 ````
 
 La lista completa dei tipi di field è: [Field Types](https://symfony.com/bundles/EasyAdminBundle/current/fields.html#field-types)
+
+
+## Template Twig personalizzati per i campi
+
+Per personalizzare il template utilizzato per mostrare un campo nella tabella (index) e nel dettaglio (detail), si usa `setTemplatePath()`:
+
+````php
+yield TextField::new("url")
+        ->setTemplatePath('admin/field/download-link.html.twig')
+        ->hideOnForm();
+
+yield ImageField::new('url', 'Anteprima')
+    ->formatValue(function($value, LegacyFile $entity) {
+
+        if( !$entity->downloadableExists() ) {
+           return '/images/error.png';
+        }
+
+        if( $entity->isImage() ) {
+            return $value;
+        }
+
+        $formattedValue =
+            match($entity->getFormato()) {
+                'pdf'           => '/images/pdf.png',
+                default         => '/images/question-mark.png'
+            };
+
+        return $formattedValue;
+    })
+    ->setTemplatePath('admin/field/image.html.twig')
+    ->hideOnForm();
+````
+
+Non è possibile definire variabili Twig come si fa dai controller Symfony normali, ma i template hanno accesso alle entity:
+
+
+````
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+
+<a href="{{ field.value }}">
+    {% if entity.instance.downloadableExists %}Download{% else %}🛑 FILE ERROR{% endif %}
+</a>
+````
+
+In alternativa, se è necessario rendere disponibile al template una variabile che non fa parte della entity,
+la si può assegnare al contesto globale di Twig:
+
+````php
+public function __construct(protected EntityManagerInterface $em, protected Environment $twig, ContainerBagInterface $parameterBag)
+{
+    $projectDir = $parameterBag->get('kernel.project_dir');
+    LegacyFile::setProjectDir($projectDir);
+
+    $averageDownloadCount = $em->getRepository(LegacyFile::class)->getAverageDownloadCount();
+    LegacyFile::setAverageDownloadCount($averageDownloadCount);
+}
+
+
+
+
+
+````
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{# @var averageDownloadCount int #}
+
+{% if field.value > 0 and field.value < averageDownloadCount/3 %}
+    <span title="Molto peggio della media di {{ averageDownloadCount|number_format(0, '', '.') }}">🧻</span>
+{% endif %}
+
+{% if field.value > averageDownloadCount*3 %}
+    <span title="Molto meglio della media di {{ averageDownloadCount|number_format(0, '', '.') }}">🎉</span>
+{% endif %}
+
+{% if field.value > averageDownloadCount*10 %}
+    <span title="Più di 10x rispetto alla media!">🥇</span>
+{% endif %}
+
+{{ field.formattedValue|number_format(0, '', '.') }}
+
+````
+
+
 
 
 ## Campo upload file

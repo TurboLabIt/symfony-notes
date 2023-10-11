@@ -235,22 +235,34 @@ Non è possibile definire variabili Twig come si fa dai controller Symfony norma
 </a>
 ````
 
+
 In alternativa, se è necessario rendere disponibile al template una variabile che non fa parte della entity,
 la si può assegnare al contesto globale di Twig:
 
 ````php
 public function __construct(protected EntityManagerInterface $em, protected Environment $twig, ContainerBagInterface $parameterBag)
 {
-    $projectDir = $parameterBag->get('kernel.project_dir');
-    LegacyFile::setProjectDir($projectDir);
-
     $averageDownloadCount = $em->getRepository(LegacyFile::class)->getAverageDownloadCount();
     LegacyFile::setAverageDownloadCount($averageDownloadCount);
 }
 
 
+public function configureFields(string $pageName): iterable
+{
+    if( !in_array($pageName, [Crud::PAGE_NEW, Crud::PAGE_EDIT]) ) {
+
+        $averageDownloadCount = $this->em->getRepository(LegacyFile::class)->getAverageDownloadCount();
+        $this->twig->addGlobal("averageDownloadCount", $averageDownloadCount);
+    }
 
 
+    yield IntegerField::new('visite')
+            ->setTemplatePath('admin/field/downloads.html.twig')
+            ->hideWhenCreating()
+            ->setTextAlign("right")
+            ->setDisabled();
+}
+````
 
 ````
 {# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
@@ -271,7 +283,6 @@ public function __construct(protected EntityManagerInterface $em, protected Envi
 {% endif %}
 
 {{ field.formattedValue|number_format(0, '', '.') }}
-
 ````
 
 

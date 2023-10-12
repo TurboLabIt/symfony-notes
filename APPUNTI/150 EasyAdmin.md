@@ -264,7 +264,12 @@ yield ImageField::new('url', 'Anteprima')
         <a href="#" class="ea-lightbox-thumbnail" data-ea-lightbox-content-selector="#{{ html_id }}">
     {% endif %}
 
-    <img src="{{ asset(image) }}" class="img-fluid"{% if not isClickable %} style="max-height: 50px; max-width: 100px;"{% endif %}>
+    <img
+        src="{{ asset(image) }}" class="img-fluid"
+        {% if not isClickable %} style="max-height: 50px; max-width: 100px;"{% endif %}
+        {# https://github.com/mdn/sprints/issues/4014 #}
+        onerror="this.onerror=null; this.src='/images/error.png'"
+    >
 
     {% if isClickable %}
 

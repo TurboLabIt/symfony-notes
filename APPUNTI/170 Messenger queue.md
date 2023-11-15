@@ -49,7 +49,13 @@ class EmailSendOfferListing
 mkdir src/MessageHandler/
 ````
 
-Creare una nuova classe. Il nome non è importante. Ad esempio:
+Creare una nuova classe. Il nome non è importante. E' invece importante che:
+
+- il metodo che gestisce un messaggio abbia l'attributo `#[AsMessageHandler]`
+- il metodo che gestisce un messaggio abbia un solo parametro, del tipo uguale al
+    messaggio che deve gestire
+
+Ad esempio:
 
 ````php
 <?php

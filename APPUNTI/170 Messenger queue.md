@@ -3,10 +3,11 @@ Run code async (queue e worker)
 - 📚 [SymfonyCast](https://symfonycasts.com/screencast/messenger/)
 - 📚 [Symfony docs](https://symfony.com/doc/current/messenger.html)
 
-Il sistema si divide in due file:
+Il sistema si divide in:
 
 - **Message**:
 - **MessageHandler**:
+- **Dispatch**:
 
 
 ## Installazione
@@ -16,7 +17,7 @@ symfony composer require messenger
 ````
 
 
-## Creazione del Message
+## 1. Creazione del Message
 
 ````shell
 mkdir src/Message/
@@ -46,7 +47,7 @@ class EmailSendOfferListing
 ⚠ Non può quindi contenere servizi o risorse, ma solo dati.
 
 
-## Creazione del MessageHandler
+## 2. Creazione del MessageHandler
 
 ````shell
 mkdir src/MessageHandler/
@@ -106,7 +107,25 @@ class EmailHandler
 L'handler può avere tutti i servizi e le risorse che gli servono (non viene serializzato).
 
 
-## Vedere quale Handler gestisce quale Message
+## 3. Dispatch del messaggio
+
+Nel punto in cui si deve eseguire l'azione:
+
+````php
+public function __construct(protected MessageBusInterface $messageBus)
+{ }
+
+public function serviceListing() : Response
+{
+  ...
+  $message = new EmailSendOfferListing($opportunity->getId());
+  $this->messageBus->dispatch($message);
+  ...
+}
+````
+
+
+## Debug: vedere quale Handler gestisce quale Message
 
 ````shell
 symfony console debug:messenger
@@ -148,4 +167,10 @@ Da qui in poi, i messaggi dispatchati vengono serializzati e aggiunti alla coda,
 
 ## Async, Fase 2 | Worker per l'elaborazione dei messaggi nella queue 
 
+Per elaborare i messaggi accodati:
 
+````shell
+symfony console messenger:consume async -vv
+````
+
+Vedi anche: [symfony/messenger-consume.sh (webstackup)](https://github.com/TurboLabIt/webstackup/blob/master/script/frameworks/symfony/messenger-consume.sh)

@@ -113,7 +113,7 @@ symfony console debug:messenger
 ````
 
 
-## Invio async
+## Async, Fase 1 | Queue dei messaggi
 
 Attivare `MESSENGER_TRANSPORT_DSN=doctrine://` in `.env`.
 
@@ -142,3 +142,10 @@ Se il db è allineato, installare il transport per Doctrine e creare la tabella:
 ````shell
 symfony composer require symfony/doctrine-messenger && symfony console make:migration && symfony console doctrine:migrations:migrate --no-interaction
 ````
+
+Da qui in poi, i messaggi dispatchati vengono serializzati e aggiunti alla coda, ma non più processati automaticamente.
+
+
+## Async, Fase 2 | Worker per l'elaborazione dei messaggi nella queue 
+
+

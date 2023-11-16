@@ -170,7 +170,7 @@ Da qui in poi, i messaggi dispatchati vengono serializzati e aggiunti alla coda,
 Per elaborare i messaggi accodati:
 
 ````shell
-symfony console messenger:consume async -vv
+symfony console messenger:consume async -vv --limit=50
 ````
 
 Vedi anche: [symfony/cron.sh (webstackup)](https://github.com/TurboLabIt/webstackup/blob/master/script/frameworks/symfony/cron.sh)

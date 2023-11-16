@@ -173,4 +173,4 @@ Per elaborare i messaggi accodati:
 symfony console messenger:consume async -vv
 ````
 
-Vedi anche: [symfony/messenger-consume.sh (webstackup)](https://github.com/TurboLabIt/webstackup/blob/master/script/frameworks/symfony/messenger-consume.sh)
+Vedi anche: [symfony/cron.sh (webstackup)](https://github.com/TurboLabIt/webstackup/blob/master/script/frameworks/symfony/cron.sh)

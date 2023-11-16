@@ -31,16 +31,19 @@ namespace App\Message;
 
 class EmailSendOfferListing
 {
-    public function __construct(protected Opportunity $opportunity)
+    public function __construct(protected int $opportunityId)
     { }
 
 
-    public function getOpportunity(): Opportunity
+    public function getOpportunityId() : int
     {
-        return $this->opportunity;
+        return $this->opportunityId;
     }
 }
 ````
+
+⚠ Questa classe viene serializzata quando si usa l'invio async!
+⚠ Non può quindi contenere servizi o risorse, ma solo dati.
 
 
 ## Creazione del MessageHandler
@@ -51,9 +54,8 @@ mkdir src/MessageHandler/
 
 Creare una nuova classe. Il nome non è importante. E' invece importante che:
 
-- il metodo che gestisce un messaggio abbia l'attributo `#[AsMessageHandler]`
-- il metodo che gestisce un messaggio abbia un solo parametro, del tipo uguale al
-    messaggio che deve gestire
+- ogni metodo che gestisce un messaggio abbia l'attributo `#[AsMessageHandler]`
+- ogni metodo che gestisce un messaggio abbia un solo parametro, del tipo uguale al messaggio che deve gestire
 
 Ad esempio:
 
@@ -61,22 +63,24 @@ Ad esempio:
 <?php
 namespace App\MessageHandler;
 
+use App\Entity\Opportunity;
 use App\Message\EmailSendOfferListing;
 use App\Message\EmailSendOfferSelected;
 use App\Service\Mailer;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 
 class EmailHandler
 {
-    public function __construct(protected Mailer $mailer)
+    public function __construct(protected Mailer $mailer, protected EntityManagerInterface $em)
     { }
 
 
     #[AsMessageHandler]
     public function sendOfferListing(EmailSendOfferListing $message)
     {
-        $opportunity = $message->getOpportunity();
+        $opportunity = $this->getOpportunityFromMessage($message);
         $this->mailer->sendOfferListingIfElegible($opportunity);
     }
 
@@ -84,17 +88,57 @@ class EmailHandler
     #[AsMessageHandler]
     public function sendOfferSelected(EmailSendOfferSelected $message)
     {
-        $opportunity    = $message->getOpportunity();
+        $opportunity    = $this->getOpportunityFromMessage($message);
         $offer          = $message->getOffer();
         $this->mailer->sendOfferSelectedIfElegible($opportunity, $offer);
     }
-}
 
+
+    protected function getOpportunityFromMessage($message) : Opportunity
+    {
+        $opportunityId  = $message->getOpportunityId();
+        $opportunity    = $this->em->getRepository(Opportunity::class)->find($opportunityId);
+        return $opportunity;
+    }
+}
 ````
+
+L'handler può avere tutti i servizi e le risorse che gli servono (non viene serializzato).
 
 
 ## Vedere quale Handler gestisce quale Message
 
 ````shell
 symfony console debug:messenger
+````
+
+
+## Invio async
+
+Attivare `MESSENGER_TRANSPORT_DSN=doctrine://` in `.env`.
+
+In `config/packages/messenger.yaml`:
+
+- attivare il trasporto `async: '%env(MESSENGER_TRANSPORT_DSN)%'`
+- indicare quali messaggi gestire in modo async
+
+  ````yaml
+  framework:
+    messenger:
+        transports:
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+        routing:
+            'App\Message\*': async
+  ````
+
+Verificare che non ci siano migration da fare:
+
+````shell
+symfony console make:migration
+````
+
+Se il db è allineato, installare il transport per Doctrine e creare la tabella:
+
+````shell
+symfony composer require symfony/doctrine-messenger && symfony console make:migration && symfony console doctrine:migrations:migrate --no-interaction
 ````

@@ -38,3 +38,45 @@ Add PSR-4 autoload mapping? Maps namespace "Turbolabit\PhpEncryptor" to the ente
 
 Do you confirm generation [yes]? 
 ````
+
+
+````
+symfony composer require php:^8.3
+echo "8.3" > .php-version
+````
+
+
+
+````
+    "autoload": {
+        "psr-4": {
+            "TurboLabIt\\Encryptor\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TurboLabIt\\Encryptor\\Tests\\": "tests/"
+        }
+    }
+````
+
+
+
+````
+symfony composer require phpunit/phpunit --dev
+````
+
+````
+curl -O https://raw.githubusercontent.com/TurboLabIt/webdev-gitignore/master/.gitignore
+
+composer.lock
+````
+
+
+````
+mkdir scripts && cd scripts
+curl -O https://raw.githubusercontent.com/TurboLabIt/webstackup/master/my-app-template/scripts/test-runner-bundle.sh
+sudo chmod u=rwx,go=rx test-runner-bundle.sh
+bash test-runner-bundle.sh
+````
+

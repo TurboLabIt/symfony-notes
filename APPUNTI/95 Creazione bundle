@@ -61,18 +61,6 @@ echo "8.3" > .php-version
 ````
 
 
-
-````
-symfony composer require phpunit/phpunit --dev
-````
-
-````
-curl -O https://raw.githubusercontent.com/TurboLabIt/webdev-gitignore/master/.gitignore
-
-composer.lock
-````
-
-
 ````
 mkdir scripts && cd scripts
 curl -O https://raw.githubusercontent.com/TurboLabIt/webstackup/master/my-app-template/scripts/test-runner-bundle.sh

@@ -1,0 +1,40 @@
+````
+$ composer init
+
+                                            
+  Welcome to the Composer config generator  
+                                            
+
+
+This command will guide you through creating your composer.json config.
+
+Package name (<vendor>/<name>) [...]: turbolabit/php-encryptor
+Description []: A battle-tested, ready-to-use PHP class to securely enrcypt()/decrypt() data 
+Author [... <...>, n to skip]: Zane <info@turbolab.it>
+Minimum Stability []: stable
+Package Type (e.g. library, project, metapackage, composer-plugin) []: symfony-bundle
+License []: CC BY-SA 4.0
+
+Define your dependencies.
+
+Would you like to define your dependencies (require) interactively [yes]? n
+Would you like to define your dev dependencies (require-dev) interactively [yes]? n
+Add PSR-4 autoload mapping? Maps namespace "Turbolabit\PhpEncryptor" to the entered relative path. [src/, n to skip]: n
+
+{
+    "name": "turbolabit/php-encryptor",
+    "description": "A battle-tested, ready-to-use PHP class to securely enrcypt()/decrypt() data",
+    "type": "symfony-bundle",
+    "license": "CC BY-SA 4.0",
+    "authors": [
+        {
+            "name": "Zane",
+            "email": "info@turbolab.it"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
+
+Do you confirm generation [yes]? 
+````
